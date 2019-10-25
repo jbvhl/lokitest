@@ -6,12 +6,18 @@ export default class GetPhotos extends React.Component {
     super();
 
     this.state = {
-      photos: []
+      photos: [],
+      search: "",
+      searchUser: ""
     };
   }
   componentDidMount() {
     this.getPhotos();
   }
+
+  search = event => {
+    this.setState({ search: event.target.value });
+  };
 
   getPhotos = async () => {
     let res = await axios.get(
@@ -20,13 +26,25 @@ export default class GetPhotos extends React.Component {
     this.setState({ photos: res.data });
   };
 
+  searchUser = () => {
+    const user = this.state.search;
+    axios
+      .get(
+        `https://api.unsplash.com/search/users?client_id=${process.env.REACT_APP_ACCESS_KEY}&query=${user}`
+      )
+      .then(res => {
+        this.setState({ searchUser: res.data });
+      });
+      console.log(this.state.searchUser)
+  };
+
   render() {
-    console.log(this.state.photos);
+      console.log(this.state.search)
 
     const mappedPhotos = this.state.photos.map((photo, i) => {
       return (
         <div key={i}>
-          <img src={photo.urls.regular} atl="img" />
+          <img src={photo.urls.regular} atl="img" width="90%" />
         </div>
       );
     });
@@ -42,15 +60,26 @@ export default class GetPhotos extends React.Component {
     return (
       <>
         <h1>Unsplash</h1>
-        <div style={{ display: "flex", padding: "0, 20%" }}>
-          <div style={{paddingLeft: "20%" }}>
-            <input type="text" placeholder="Search" />
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <div
+            style={{
+              paddingLeft: "3%",
+              justifyContent: "center"
+            }}
+          >
+            <input
+              type="text"
+              placeholder="Search"
+              onChange={this.search}
+              value={this.state.search}
+            />
+            <button onClick={() => this.searchUser()}>Search</button>
 
             {mappedUsers}
           </div>
           <div
             style={{
-              paddingLeft: "20%",
+              paddingLeft: "3%",
               display: "flex",
               flexDirection: "column"
             }}
